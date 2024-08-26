@@ -3,14 +3,19 @@ const mongoose =require('mongoose');
 const bcrypt=require('bcryptjs');
 const jwt=require('jsonwebtoken');
 const cors=require('cors');
+require('dotenv').config();
 // validate
 let namepattern=/^[A-z][a-z]+$/
 let passwordpattern=/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\S+$).{8,20}$/;
 // /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\S+$).{8,20}$/;
 
-
+// use Environment variable
+const port=process.env.PORT || 8000;
+const dburl=process.env.DATABASE_URL;
+const jwtSecret=process.env.JWT_SECRET;
 // database connection
-mongoose.connect("mongodb://localhost:27017/ExpensiveTrack")
+// mongoose.connect("mongodb://localhost:27017/ExpensiveTrack")
+mongoose.connect(dburl)
 .then(()=>{
     console.log("database connected successfully")
 })
@@ -74,7 +79,7 @@ app.post('/login',async (req,res)=>{
         if(user!=null){
             bcrypt.compare(userCred.password,user.password,(err,sucess)=>{
                 if(sucess==true){
-                    jwt.sign({email:userCred.email},"Nani",(err,token)=>{
+                    jwt.sign({email:userCred.email},jwtSecret,(err,token)=>{
                         if(!err){
                             res.status(200).send({message:"Login sucess",token:token,name:user.name,id:user._id})
                         }
@@ -173,6 +178,6 @@ app.put('/updateexpense/:id',verifyToken, async (req, res) => {
     }
 });
   
- app.listen(8080,()=>{
+ app.listen(port,()=>{
     console.log("server running up and down");
  })
