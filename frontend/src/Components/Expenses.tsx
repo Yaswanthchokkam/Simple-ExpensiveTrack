@@ -10,7 +10,13 @@ interface ExpenseData {
   userId: string;
 }
 
-export default function Expenses() {
+const Expenses:React.FC=()=> {
+  const apiUrl = import.meta.env.VITE_API_BASE_URL as string;
+  // console.log(apiUrl);
+
+  if (!apiUrl) {
+      throw new Error("API URL is not defined in env variable");
+  }
   const [expenseData, setExpenseData] = useState<ExpenseData[]>([]);
   const [loggeddetails, setLoggedDetails] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -42,7 +48,7 @@ export default function Expenses() {
 
   const fetchExpenses = () => {
     if (loggeddetails) {
-      fetch(`http://localhost:8080/getreport/${loggeddetails}`, {
+      fetch(`${apiUrl}/getreport/${loggeddetails}`, {
         method: "GET",
         headers:{
           "Content-Type":"application/json",
@@ -74,8 +80,8 @@ export default function Expenses() {
     };
 
     const url = isEditing
-      ? `http://localhost:8080/updateexpense/${editId}`
-      : "http://localhost:8080/addexpenses";
+      ? `${apiUrl}/updateexpense/${editId}`
+      : `${apiUrl}/addexpenses`;
     const method = isEditing ? "PUT" : "POST";
 
     fetch(url, {
@@ -117,7 +123,7 @@ export default function Expenses() {
   };
 
   const handleDelete = (id: string) => {
-    fetch(`http://localhost:8080/expense/${id}`, {
+    fetch(`${apiUrl}/expense/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -247,3 +253,4 @@ export default function Expenses() {
     </>
   );
 }
+export default Expenses

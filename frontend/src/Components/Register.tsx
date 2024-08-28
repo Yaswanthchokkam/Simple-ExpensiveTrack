@@ -6,7 +6,14 @@ type handle={
     email:string,
     password:string
 }
-export default function Register(){
+const Register:React.FC=()=>{
+
+    const apiUrl = import.meta.env.VITE_API_BASE_URL as string;
+    // console.log(apiUrl);
+
+    if (!apiUrl) {
+        throw new Error("API URL is not defined in env variable");
+    }
     const[userdata,setUserData]=useState<handle>({
         name:'',
         email:'',
@@ -27,7 +34,7 @@ export default function Register(){
     function formSubmit(event:React.FormEvent<HTMLFormElement>){
           event.preventDefault();
           console.log(userdata);
-          fetch("http://localhost:8080/register",{
+          fetch(`${apiUrl}/register`,{
             method:"POST",
             body:JSON.stringify(userdata),
         
@@ -78,3 +85,4 @@ export default function Register(){
         </>
     )
 }
+export default Register

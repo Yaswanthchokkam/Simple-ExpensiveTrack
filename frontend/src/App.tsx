@@ -10,7 +10,7 @@ import { useState } from 'react'
 import { UserContext } from './Contexts/userContext'
 import Private from './Components/Private'
 import { User } from './Contexts/userContext'
-function App() {
+const App:React.FC=()=> {
  
   const storedUser = localStorage.getItem('ExpenseToken');
   const [user, setUser] = useState<User | null>(storedUser ? JSON.parse(storedUser) : null);
