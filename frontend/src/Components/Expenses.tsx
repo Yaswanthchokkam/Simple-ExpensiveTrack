@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 interface ExpenseData {
   _id: string;
   itemId: number;
@@ -9,14 +9,14 @@ interface ExpenseData {
   expenseDate: string;
   userId: string;
 }
-
-const Expenses:React.FC=()=> {
+const Expenses: React.FC = () => {
+  const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_BASE_URL as string;
-  // console.log(apiUrl);
 
   if (!apiUrl) {
-      throw new Error("API URL is not defined in env variable");
+    throw new Error("API URL is not defined in env variable");
   }
+
   const [expenseData, setExpenseData] = useState<ExpenseData[]>([]);
   const [loggeddetails, setLoggedDetails] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -26,21 +26,19 @@ const Expenses:React.FC=()=> {
     Amount: 0,
     Category: "",
   });
-  const [view, setView] = useState<'form' | 'report'>('report'); // Toggle between form and report view
+  const [view, setView] = useState<'form' | 'report'>('report');
   const [message, setMessage] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editId, setEditId] = useState<string | null>(null);
 
   useEffect(() => {
     const storedUserId = localStorage.getItem("ExpenseToken");
-    console.log(storedUserId);
     if (storedUserId) {
       const userobj = JSON.parse(storedUserId);
       setLoggedDetails(userobj.id);
-      setToken(userobj.token)
+      setToken(userobj.token);
     }
   }, []);
-  console.log(token);
 
   useEffect(() => {
     fetchExpenses();
@@ -50,10 +48,10 @@ const Expenses:React.FC=()=> {
     if (loggeddetails) {
       fetch(`${apiUrl}/getreport/${loggeddetails}`, {
         method: "GET",
-        headers:{
-          "Content-Type":"application/json",
-           "Authorization":"Bearer "+token
-      }
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token,
+        }
       })
         .then((response) => response.json())
         .then((data) => {
@@ -76,7 +74,7 @@ const Expenses:React.FC=()=> {
     const payload = {
       ...newExpense,
       userId: loggeddetails,
-      expenseDate: new Date().toLocaleDateString("en-GB"), // Format as DD/MM/YYYY
+      expenseDate: new Date().toLocaleDateString("en-GB"),
     };
 
     const url = isEditing
@@ -88,7 +86,7 @@ const Expenses:React.FC=()=> {
       method,
       headers: {
         "Content-Type": "application/json",
-        "Authorization":"Bearer "+token
+        "Authorization": "Bearer " + token,
       },
       body: JSON.stringify(payload),
     })
@@ -97,7 +95,7 @@ const Expenses:React.FC=()=> {
         setMessage(isEditing ? "Expense updated successfully" : "Expense added successfully");
         fetchExpenses();
         setNewExpense({ itemId: "", itemName: "", Amount: 0, Category: "" });
-        setView("report"); // Switch to report view after adding/updating expense
+        setView("report");
         setIsEditing(false);
         setEditId(null);
       })
@@ -127,7 +125,7 @@ const Expenses:React.FC=()=> {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        "Authorization":"Bearer "+token
+        "Authorization": "Bearer " + token,
       },
     })
       .then(() => {
@@ -140,12 +138,9 @@ const Expenses:React.FC=()=> {
       });
   };
 
-  const formatDate = (dateString: string): string => {
-    const [day, month, year] = dateString.split("/").map(Number);
-    const date = new Date(year, month - 1, day);
-    return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-      date.getDate()
-    ).padStart(2, "0")}-${date.getFullYear()}`;
+  const handleHomePageClick = () => {
+    localStorage.removeItem("ExpenseToken"); 
+    navigate('/'); 
   };
 
   return (
@@ -154,51 +149,52 @@ const Expenses:React.FC=()=> {
       <div className="expense-btm">
         <button onClick={() => setView('form')} className="addExpenses">Add Expenses</button>
         <button onClick={() => setView('report')} className="expenseReport">Expense Report</button>
-        <button className="addExpenses home"><Link className="link" to={'/'}>Home Page</Link></button>
+        <button className="addExpenses home" onClick={handleHomePageClick}>
+          Home Page
+        </button>
       </div>
       {message && <p className="success">{message}</p>}
 
       {view === 'form' && (
         <>
-        <h2 className="addexpense-heading">{isEditing ? "Edit Expense" : "Add New Expense"}</h2>
-        <div className="add-inp">
-          
-          <input
-           className="add-input"
-            type="number"
-            name="itemId"
-            placeholder="Item ID"
-            value={newExpense.itemId}
-            onChange={handleInputChange}
-          />
-          <input
-           className="add-input"
-            type="text"
-            name="itemName"
-            placeholder="Item Name"
-            value={newExpense.itemName}
-            onChange={handleInputChange}
-          />
-          <input
-            className="add-input"
-            type="number"
-            name="Amount"
-            placeholder="Amount"
-            value={newExpense.Amount}
-            onChange={handleInputChange}
-          />
-          <input
-            className="add-input"
-            type="text"
-            name="Category"
-            placeholder="Category"
-            value={newExpense.Category}
-            onChange={handleInputChange}
-          />
-          <button className="btm-addexpense" onClick={handleAddOrUpdateExpense}>
-            {isEditing ? "Update Expense" : "Add Expense"}
-          </button>
-        </div>
+          <h2 className="addexpense-heading">{isEditing ? "Edit Expense" : "Add New Expense"}</h2>
+          <div className="add-inp">
+            <input
+              className="add-input"
+              type="number"
+              name="itemId"
+              placeholder="Item ID"
+              value={newExpense.itemId}
+              onChange={handleInputChange}
+            />
+            <input
+              className="add-input"
+              type="text"
+              name="itemName"
+              placeholder="Item Name"
+              value={newExpense.itemName}
+              onChange={handleInputChange}
+            />
+            <input
+              className="add-input"
+              type="number"
+              name="Amount"
+              placeholder="Amount"
+              value={newExpense.Amount}
+              onChange={handleInputChange}
+            />
+            <input
+              className="add-input"
+              type="text"
+              name="Category"
+              placeholder="Category"
+              value={newExpense.Category}
+              onChange={handleInputChange}
+            />
+            <button className="btm-addexpense" onClick={handleAddOrUpdateExpense}>
+              {isEditing ? "Update Expense" : "Add Expense"}
+            </button>
+          </div>
         </>
       )}
 
@@ -221,20 +217,19 @@ const Expenses:React.FC=()=> {
                   {expenseData.map((data) => (
                     <tr key={data._id}>
                       <td>
-                        <input className="input" type="text" name="itemId" value={data.itemId} />
+                        <input className="input" type="text" name="itemId" value={data.itemId} readOnly />
                       </td>
                       <td >
-                        <input className="input"  type="text" name="itemName" value={data.itemName} />
+                        <input className="input" type="text" name="itemName" value={data.itemName} readOnly />
                       </td>
                       <td>
-                      <input className="input"  type="text" name="Amount" value={data.Amount} />
+                        <input className="input" type="text" name="Amount" value={data.Amount} readOnly />
                       </td>
                       <td>
-                      <input className="input"  type="text" name="expenseDate" value={data.expenseDate} />
-                        {/* {formatDate(data.expenseDate)} */}
-                        </td>
+                        <input className="input" type="text" name="expenseDate" value={data.expenseDate} readOnly />
+                      </td>
                       <td>
-                       <input className="input"  type="text" name="Category" value={data.Category} />
+                        <input className="input" type="text" name="Category" value={data.Category} readOnly />
                       </td>
                       <td className="action">
                         <button className="edit" onClick={() => handleEdit(data._id)}>Edit</button>
@@ -246,11 +241,12 @@ const Expenses:React.FC=()=> {
               </table>
             </div>
           ) : (
-            <p className="response">No expenses found. Please Add Ur Expenses</p>
+            <p className="response">No expenses found. Please Add Your Expenses</p>
           )}
         </>
       )}
     </>
   );
-}
-export default Expenses
+};
+
+export default Expenses;
