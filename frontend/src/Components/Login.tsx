@@ -9,7 +9,7 @@ type handle = {
 
 const Login: React.FC = () => {
     const apiUrl = import.meta.env.VITE_API_BASE_URL as string;
-    // console.log(apiUrl);
+    
 
     if (!apiUrl) {
         throw new Error("API URL is not defined in env variable");

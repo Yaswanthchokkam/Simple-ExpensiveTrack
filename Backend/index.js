@@ -7,14 +7,13 @@ require('dotenv').config();
 // validate
 let namepattern=/^[A-z][a-z]+$/
 let passwordpattern=/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\S+$).{8,20}$/;
-// /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&-+=()])(?=\S+$).{8,20}$/;
 
 // use Environment variable
 const port=process.env.PORT || 8000;
 const dburl=process.env.DATABASE_URL;
 const jwtSecret=process.env.JWT_SECRET;
 // database connection
-// mongoose.connect("mongodb://localhost:27017/ExpensiveTrack")
+
 mongoose.connect(dburl)
 .then(()=>{
     console.log("database connected successfully")
@@ -22,6 +21,7 @@ mongoose.connect(dburl)
 .catch((err)=>{
     console.log(err)
 })
+
 // import models
 const userModel=require('./Models/userModel');
 const expenseModel=require('./Models/ExpenseModel');
